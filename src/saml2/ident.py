@@ -41,6 +41,8 @@ def code(item):
     for attr in ATTR:
         val = getattr(item, attr)
         if val:
+            if isinstance(val, six.text_type):
+                val = val.encode('utf-8')
             _res.append("%d=%s" % (i, quote(val)))
         i += 1
     return ",".join(_res)
@@ -52,7 +54,9 @@ def code_binary(item):
     """
     code_str = code(item)
     if isinstance(code_str, six.string_types):
-        return code_str.encode('utf-8')
+        if isinstance(code_str, six.text_type):
+            code_str = code_str.encode('utf-8')
+        return code_str
     return code_str
 
 
@@ -65,6 +69,8 @@ def decode(txt):
     for part in txt.split(","):
         if part.find("=") != -1:
             i, val = part.split("=")
+            if not isinstance(val, six.text_type):
+                val = val.decode('utf-8')
             try:
                 setattr(_nid, ATTR[int(i)], unquote(val))
             except:
